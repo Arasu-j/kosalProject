@@ -7,18 +7,13 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardFooter, CardTitle } from '@/components/ui/card'
-
-interface Job {
-  id: number
-  title: string
-  description: string
-  location: string
-  salary: string
-  skillsRequired: string
-}
+import { useMutation } from 'convex/react'
+import { api } from '../../../../../convex/_generated/api'
+import { useSession } from '../../../SessionProvider'
 
 export default function PostJobsPage() {
-  const [jobs, setJobs] = useState<Job[]>([])
+  const { company } = useSession()
+  const postJob = useMutation(api.companies.postJob)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -26,16 +21,31 @@ export default function PostJobsPage() {
     salary: '',
     skillsRequired: '',
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const newJob: Job = { id: Date.now(), ...formData }
-    setJobs([...jobs, newJob])
-    setFormData({ title: '', description: '', location: '', salary: '', skillsRequired: '' })
+    setError('')
+    setSuccess('')
+    if (!company?.id) {
+      setError('Company not found in session.')
+      return
+    }
+    setLoading(true)
+    try {
+      await postJob({ ...formData, companyId: company.id })
+      setFormData({ title: '', description: '', location: '', salary: '', skillsRequired: '' })
+      setSuccess('Job posted successfully!')
+    } catch (err: any) {
+      setError(err.message || 'Failed to post job')
+    }
+    setLoading(false)
   }
 
   return (
@@ -80,21 +90,11 @@ export default function PostJobsPage() {
           <CardTitle>Posted Jobs</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {jobs.length === 0 ? (
-            <p className="text-gray-500">No jobs posted yet.</p>
-          ) : (
-            jobs.map((job) => (
-              <div
-                key={job.id}
-                className="border p-4 rounded bg-white shadow-sm"
-              >
-                <h2 className="text-lg font-semibold">{job.title}</h2>
-                <p><strong>Location:</strong> {job.location}</p>
-                <p><strong>Salary:</strong> {job.salary}</p>
-                <p><strong>Skills:</strong> {job.skillsRequired}</p>
-                <p className="mt-2 text-gray-600">{job.description}</p>
-              </div>
-            ))
+          {success && (
+            <p className="text-green-500">{success}</p>
+          )}
+          {error && (
+            <p className="text-red-500">{error}</p>
           )}
         </CardContent>
       </Card>

@@ -1,33 +1,67 @@
 // app/company/CmpDashboard/profile/page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardFooter, CardTitle } from '@/components/ui/card'
+import { useMutation } from 'convex/react'
+import { api } from '../../../../../convex/_generated/api'
+import { useSession } from '../../../SessionProvider'
 
 export default function CompanyProfilePage() {
+  const { company } = useSession()
+  const updateCompanyProfile = useMutation(api.companies.updateCompanyProfile)
   const [formData, setFormData] = useState({
-    companyName: '',
-    industry: '',
-    description: '',
-    location: '',
-    website: '',
-    email: '',
-    phone: '',
-    logoUrl: '',
+    name: company?.name || '',
+    industrySector: company?.industrySector || '',
+    description: company?.description || '',
+    address: company?.address || '',
+    website: company?.website || '',
+    email: company?.email || '',
+    phone: company?.phone || '',
+    logoUrl: company?.logoUrl || '',
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  // Update form when company changes
+  useEffect(() => {
+    setFormData({
+      name: company?.name || '',
+      industrySector: company?.industrySector || '',
+      description: company?.description || '',
+      address: company?.address || '',
+      website: company?.website || '',
+      email: company?.email || '',
+      phone: company?.phone || '',
+      logoUrl: company?.logoUrl || '',
+    })
+  }, [company])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log(formData)
-    // TODO: Connect to backend
+    setError('')
+    setSuccess('')
+    if (!company?.id) {
+      setError('Company not found in session.')
+      return
+    }
+    setLoading(true)
+    try {
+      await updateCompanyProfile({ companyId: company.id, data: formData })
+      setSuccess('Profile updated successfully!')
+    } catch (err: any) {
+      setError(err.message || 'Failed to update profile')
+    }
+    setLoading(false)
   }
 
   return (
@@ -41,11 +75,11 @@ export default function CompanyProfilePage() {
           <CardContent className="grid gap-6 md:grid-cols-2">
             <div>
               <Label>Company Name</Label>
-              <Input name="companyName" value={formData.companyName} onChange={handleChange} required />
+              <Input name="name" value={formData.name} onChange={handleChange} required />
             </div>
             <div>
               <Label>Industry</Label>
-              <Input name="industry" value={formData.industry} onChange={handleChange} required />
+              <Input name="industrySector" value={formData.industrySector} onChange={handleChange} required />
             </div>
             <div className="md:col-span-2">
               <Label>Description</Label>
@@ -53,7 +87,7 @@ export default function CompanyProfilePage() {
             </div>
             <div>
               <Label>Location</Label>
-              <Input name="location" value={formData.location} onChange={handleChange} />
+              <Input name="address" value={formData.address} onChange={handleChange} />
             </div>
             <div>
               <Label>Website</Label>

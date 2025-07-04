@@ -1,43 +1,87 @@
 // app/college/ClgDashBoard/profile/page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { useMutation } from 'convex/react'
+import { api } from '../../../../../convex/_generated/api'
+import { useSession } from '../../../SessionProvider'
 
 export default function ProfileManagementPage() {
+  const { college } = useSession()
+  const updateCollegeProfile = useMutation(api.colleges.updateCollegeProfile)
   const [formData, setFormData] = useState({
-    name: '',
-    code: '',
-    type: '',
-    university: '',
-    accreditation: '',
-    description: '',
-    address: '',
-    city: '',
-    state: '',
-    country: '',
-    zip: '',
-    email: '',
-    phone: '',
-    website: '',
-    principal: '',
-    placementOfficer: '',
-    placementEmail: '',
-    placementPhone: '',
+    name: college?.name || '',
+    collegeId: college?.collegeId || '',
+    collegeType: college?.collegeType || '',
+    affiliatedUniversity: college?.affiliatedUniversity || '',
+    accreditation: college?.accreditation || '',
+    description: college?.description || '',
+    address: college?.address || '',
+    city: college?.city || '',
+    state: college?.state || '',
+    country: college?.country || '',
+    zipCode: college?.zipCode || '',
+    email: college?.email || '',
+    phone: college?.phone || '',
+    website: college?.website || '',
+    principalName: college?.principalName || '',
+    placementOfficerName: college?.placementOfficerName || '',
+    placementEmail: college?.placementEmail || '',
+    placementPhone: college?.placementPhone || '',
   })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  // Update form when college changes
+  useEffect(() => {
+    setFormData({
+      name: college?.name || '',
+      collegeId: college?.collegeId || '',
+      collegeType: college?.collegeType || '',
+      affiliatedUniversity: college?.affiliatedUniversity || '',
+      accreditation: college?.accreditation || '',
+      description: college?.description || '',
+      address: college?.address || '',
+      city: college?.city || '',
+      state: college?.state || '',
+      country: college?.country || '',
+      zipCode: college?.zipCode || '',
+      email: college?.email || '',
+      phone: college?.phone || '',
+      website: college?.website || '',
+      principalName: college?.principalName || '',
+      placementOfficerName: college?.placementOfficerName || '',
+      placementEmail: college?.placementEmail || '',
+      placementPhone: college?.placementPhone || '',
+    })
+  }, [college])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log(formData)
-    // TODO: Submit to backend
+    setError('')
+    setSuccess('')
+    if (!college?.id) {
+      setError('College not found in session.')
+      return
+    }
+    setLoading(true)
+    try {
+      await updateCollegeProfile({ collegeId: college.id, data: formData })
+      setSuccess('Profile updated successfully!')
+    } catch (err: any) {
+      setError(err.message || 'Failed to update profile')
+    }
+    setLoading(false)
   }
 
   return (
@@ -55,15 +99,15 @@ export default function ProfileManagementPage() {
             </div>
             <div>
               <Label>College Code / ID</Label>
-              <Input name="code" value={formData.code} onChange={handleChange} required />
+              <Input name="collegeId" value={formData.collegeId} onChange={handleChange} required />
             </div>
             <div>
               <Label>Type</Label>
-              <Input name="type" value={formData.type} onChange={handleChange} />
+              <Input name="collegeType" value={formData.collegeType} onChange={handleChange} />
             </div>
             <div>
               <Label>Affiliated University</Label>
-              <Input name="university" value={formData.university} onChange={handleChange} />
+              <Input name="affiliatedUniversity" value={formData.affiliatedUniversity} onChange={handleChange} />
             </div>
             <div>
               <Label>Accreditation</Label>
@@ -91,7 +135,7 @@ export default function ProfileManagementPage() {
             </div>
             <div>
               <Label>ZIP / Pin Code</Label>
-              <Input name="zip" value={formData.zip} onChange={handleChange} />
+              <Input name="zipCode" value={formData.zipCode} onChange={handleChange} />
             </div>
             <div>
               <Label>Email</Label>
@@ -107,11 +151,11 @@ export default function ProfileManagementPage() {
             </div>
             <div>
               <Label>Principal Name</Label>
-              <Input name="principal" value={formData.principal} onChange={handleChange} />
+              <Input name="principalName" value={formData.principalName} onChange={handleChange} />
             </div>
             <div>
               <Label>Placement Officer</Label>
-              <Input name="placementOfficer" value={formData.placementOfficer} onChange={handleChange} />
+              <Input name="placementOfficerName" value={formData.placementOfficerName} onChange={handleChange} />
             </div>
             <div>
               <Label>Placement Email</Label>

@@ -5,37 +5,15 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-interface Company {
-  id: number
-  name: string
-  industry: string
-  location: string
-  email: string
-  invited: boolean
-}
+import { useQuery } from 'convex/react'
+import { api } from '../../../../../convex/_generated/api'
 
 export default function CompanyConnectPage() {
-  const [companies, setCompanies] = useState<Company[]>([{
-    id: 1,
-    name: 'TechCorp Pvt Ltd',
-    industry: 'IT Services',
-    location: 'Bangalore, India',
-    email: 'hr@techcorp.com',
-    invited: false,
-  }, {
-    id: 2,
-    name: 'InnovateX Solutions',
-    industry: 'Product Development',
-    location: 'Hyderabad, India',
-    email: 'careers@innovatex.com',
-    invited: false,
-  }])
+  const [invited, setInvited] = useState<{ [id: string]: boolean }>({})
+  const companies = useQuery(api.companies.listCompanies)
 
-  const handleInvite = (id: number) => {
-    setCompanies(prev => prev.map(company =>
-      company.id === id ? { ...company, invited: true } : company
-    ))
+  const handleInvite = (id: string) => {
+    setInvited(prev => ({ ...prev, [id]: true }))
   }
 
   return (
@@ -46,21 +24,27 @@ export default function CompanyConnectPage() {
           <CardTitle>Available Companies</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {companies.map(company => (
-            <div key={company.id} className="border p-4 rounded bg-white shadow-sm">
-              <h2 className="text-lg font-semibold">{company.name}</h2>
-              <p><strong>Industry:</strong> {company.industry}</p>
-              <p><strong>Location:</strong> {company.location}</p>
-              <p><strong>Email:</strong> {company.email}</p>
-              <Button
-                disabled={company.invited}
-                onClick={() => handleInvite(company.id)}
-                className="mt-2"
-              >
-                {company.invited ? 'Invited' : 'Invite to Connect'}
-              </Button>
-            </div>
-          ))}
+          {companies === undefined ? (
+            <p className="text-gray-500">Loading...</p>
+          ) : companies.length === 0 ? (
+            <p className="text-gray-500">No companies found.</p>
+          ) : (
+            companies.filter(company => company && company._id).map(company => (
+              <div key={String(company._id)} className="border p-4 rounded bg-white shadow-sm">
+                <h2 className="text-lg font-semibold">{company.name}</h2>
+                <p><strong>Industry:</strong> {company.industrySector}</p>
+                <p><strong>Location:</strong> {company.city}, {company.state}, {company.country}</p>
+                <p><strong>Email:</strong> {company.email}</p>
+                <Button
+                  disabled={!!invited[company._id]}
+                  onClick={() => handleInvite(company._id)}
+                  className="mt-2"
+                >
+                  {invited[company._id] ? 'Invited' : 'Invite to Connect'}
+                </Button>
+              </div>
+            ))
+          )}
         </CardContent>
       </Card>
     </div>

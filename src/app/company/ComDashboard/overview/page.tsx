@@ -2,16 +2,23 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-const stats = [
-  { title: 'Jobs Posted', value: 8 },
-  { title: 'Applications Received', value: 120 },
-  { title: 'Colleges Connected', value: 15 },
-  { title: 'Interviews Scheduled', value: 22 },
-  { title: 'Offers Made', value: 10 },
-]
+import { useQuery } from 'convex/react'
+import { api } from '../../../../../convex/_generated/api'
+import { useSession } from '../../../SessionProvider'
 
 export default function CompanyDashboardOverviewPage() {
+  const { company } = useSession()
+  const jobs = useQuery(api.companies.listJobsByCompany, company?.id ? { companyId: company.id } : 'skip')
+  const jobsPosted = jobs ? jobs.length : 0
+
+  const stats = [
+    { title: 'Jobs Posted', value: jobsPosted },
+    { title: 'Applications Received', value: 0 },
+    { title: 'Colleges Connected', value: 0 },
+    { title: 'Interviews Scheduled', value: 0 },
+    { title: 'Offers Made', value: 0 },
+  ]
+
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold text-gray-800">Overview</h1>

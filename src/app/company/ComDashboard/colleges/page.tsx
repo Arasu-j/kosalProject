@@ -5,41 +5,19 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-
-interface College {
-  id: number
-  name: string
-  location: string
-  type: string
-  university: string
-  invited: boolean
-}
+import { useQuery } from 'convex/react'
+import { api } from '../../../../../convex/_generated/api'
 
 export default function BrowseCollegesPage() {
   const [search, setSearch] = useState('')
-  const [colleges, setColleges] = useState<College[]>([{
-    id: 1,
-    name: 'Green Valley Engineering College',
-    location: 'Chennai, TN',
-    type: 'Private',
-    university: 'Anna University',
-    invited: false,
-  }, {
-    id: 2,
-    name: 'Sunrise Institute of Technology',
-    location: 'Hyderabad, TS',
-    type: 'Autonomous',
-    university: 'JNTU Hyderabad',
-    invited: false,
-  }])
+  const [invited, setInvited] = useState<{ [id: string]: boolean }>({})
+  const colleges = useQuery(api.colleges.listColleges)
 
-  const handleInvite = (id: number) => {
-    setColleges(prev => prev.map(clg =>
-      clg.id === id ? { ...clg, invited: true } : clg
-    ))
+  const handleInvite = (id: string) => {
+    setInvited(prev => ({ ...prev, [id]: true }))
   }
 
-  const filteredColleges = colleges.filter(clg =>
+  const filteredColleges = (colleges || []).filter(clg =>
     clg.name.toLowerCase().includes(search.toLowerCase())
   )
 
@@ -59,21 +37,23 @@ export default function BrowseCollegesPage() {
           <CardTitle>Colleges List</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {filteredColleges.length === 0 ? (
+          {colleges === undefined ? (
+            <p className="text-gray-500">Loading...</p>
+          ) : filteredColleges.length === 0 ? (
             <p className="text-gray-500">No colleges found.</p>
           ) : (
             filteredColleges.map(clg => (
               <div key={clg.id} className="border p-4 rounded bg-white shadow-sm">
                 <h2 className="text-lg font-semibold">{clg.name}</h2>
-                <p><strong>Location:</strong> {clg.location}</p>
-                <p><strong>Type:</strong> {clg.type}</p>
-                <p><strong>University:</strong> {clg.university}</p>
+                <p><strong>College ID:</strong> {clg.collegeId}</p>
+                <p><strong>Email:</strong> {clg.email}</p>
+                <p><strong>Created:</strong> {new Date(clg.createdAt).toLocaleString()}</p>
                 <Button
-                  disabled={clg.invited}
+                  disabled={!!invited[clg.id]}
                   onClick={() => handleInvite(clg.id)}
                   className="mt-2"
                 >
-                  {clg.invited ? 'Invited' : 'Invite College'}
+                  {invited[clg.id] ? 'Invited' : 'Invite College'}
                 </Button>
               </div>
             ))

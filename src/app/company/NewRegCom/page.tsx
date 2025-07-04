@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Progress } from '@/components/ui/progress'
+import { useMutation } from 'convex/react'
+import { api } from '../../../../convex/_generated/api'
+import type { CompanyRegistrationData } from '../../../../convex/companies'
 
 const steps = [
   'Basic Information',
@@ -19,13 +22,54 @@ const steps = [
 export default function CompanyRegistrationForm() {
   const [step, setStep] = useState(0)
   const router = useRouter()
+  const registerCompany = useMutation(api.companies.registerCompany)
+  const [form, setForm] = useState<CompanyRegistrationData>({
+    name: '',
+    companyId: '',
+    companyType: 'Product',
+    industrySector: 'IT',
+    companySize: '1-10',
+    description: '',
+    address: '',
+    city: '',
+    state: 'Tamil Nadu',
+    country: 'India',
+    zipCode: '',
+    email: '',
+    phone: '',
+    website: '',
+    socialMedia: '',
+    hrName: '',
+    hrEmail: '',
+    hrPhone: '',
+    registrationNumber: '',
+    logoUrl: '',
+  })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, steps.length - 1))
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 0))
 
-  const handleNext = () => {
+  type Field = keyof CompanyRegistrationData
+  const handleChange = (field: Field, value: CompanyRegistrationData[Field]) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSubmit = async () => {
     if (step === steps.length - 1) {
-      router.push('/company/ComDashboard')
+      setLoading(true)
+      setError('')
+      try {
+        console.log('Submitting form data:', form)
+        const result = await registerCompany({ data: form })
+        console.log('Registration result:', result)
+        router.push('/company/Login')
+      } catch (err: any) {
+        console.error('Registration error:', err)
+        setError(err.message || 'Registration failed')
+      }
+      setLoading(false)
     } else {
       nextStep()
     }
@@ -60,15 +104,15 @@ export default function CompanyRegistrationForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Company Name *</label>
-                <Input placeholder="Enter company name" />
+                <Input placeholder="Enter company name" value={form.name} onChange={(e) => handleChange('name', e.target.value as CompanyRegistrationData['name'])} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Company ID / Code *</label>
-                <Input placeholder="Enter company code or ID" />
+                <Input placeholder="Enter company code or ID" value={form.companyId} onChange={(e) => handleChange('companyId', e.target.value as CompanyRegistrationData['companyId'])} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Company Type *</label>
-                <Select>
+                <Select value={form.companyType} onValueChange={(value) => handleChange('companyType', value as CompanyRegistrationData['companyType'])}>
                   <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Product">Product</SelectItem>
@@ -80,7 +124,7 @@ export default function CompanyRegistrationForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Industry Sector *</label>
-                <Select>
+                <Select value={form.industrySector} onValueChange={(value) => handleChange('industrySector', value as CompanyRegistrationData['industrySector'])}>
                   <SelectTrigger><SelectValue placeholder="Select sector" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="IT">IT</SelectItem>
@@ -92,7 +136,7 @@ export default function CompanyRegistrationForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Company Size</label>
-                <Select>
+                <Select value={form.companySize} onValueChange={(value) => handleChange('companySize', value as CompanyRegistrationData['companySize'])}>
                   <SelectTrigger><SelectValue placeholder="Select size" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1-10">1-10</SelectItem>
@@ -105,7 +149,7 @@ export default function CompanyRegistrationForm() {
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-1">Company Description</label>
-                <Textarea placeholder="Brief company overview..." />
+                <Textarea placeholder="Brief company overview..." value={form.description} onChange={(e) => handleChange('description', e.target.value as CompanyRegistrationData['description'])} />
               </div>
             </div>
           </div>
@@ -118,15 +162,15 @@ export default function CompanyRegistrationForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-1">Address</label>
-                <Textarea placeholder="Enter full address..." />
+                <Textarea placeholder="Enter full address..." value={form.address} onChange={(e) => handleChange('address', e.target.value as CompanyRegistrationData['address'])} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">City</label>
-                <Input placeholder="City" />
+                <Input placeholder="City" value={form.city} onChange={(e) => handleChange('city', e.target.value as CompanyRegistrationData['city'])} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">State</label>
-                <Select>
+                <Select value={form.state} onValueChange={(value) => handleChange('state', value as CompanyRegistrationData['state'])}>
                   <SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Tamil Nadu">Tamil Nadu</SelectItem>
@@ -136,7 +180,7 @@ export default function CompanyRegistrationForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Country</label>
-                <Select>
+                <Select value={form.country} onValueChange={(value) => handleChange('country', value as CompanyRegistrationData['country'])}>
                   <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="India">India</SelectItem>
@@ -146,7 +190,7 @@ export default function CompanyRegistrationForm() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">ZIP / Pin Code</label>
-                <Input placeholder="ZIP / Pin Code" />
+                <Input placeholder="ZIP / Pin Code" value={form.zipCode} onChange={(e) => handleChange('zipCode', e.target.value as CompanyRegistrationData['zipCode'])} />
               </div>
             </div>
           </div>
@@ -159,19 +203,19 @@ export default function CompanyRegistrationForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Email Address</label>
-                <Input placeholder="Enter email address" />
+                <Input placeholder="Enter email address" value={form.email} onChange={(e) => handleChange('email', e.target.value as CompanyRegistrationData['email'])} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Phone Number</label>
-                <Input placeholder="Enter phone number" />
+                <Input placeholder="Enter phone number" value={form.phone} onChange={(e) => handleChange('phone', e.target.value as CompanyRegistrationData['phone'])} />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-1">Website URL</label>
-                <Input placeholder="Enter website URL" />
+                <Input placeholder="Enter website URL" value={form.website} onChange={(e) => handleChange('website', e.target.value as CompanyRegistrationData['website'])} />
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-1">Social Media Link (optional)</label>
-                <Input placeholder="LinkedIn or social profile" />
+                <Input placeholder="LinkedIn or social profile" value={form.socialMedia} onChange={(e) => handleChange('socialMedia', e.target.value as CompanyRegistrationData['socialMedia'])} />
               </div>
             </div>
           </div>
@@ -184,15 +228,15 @@ export default function CompanyRegistrationForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">HR/Recruiter Name</label>
-                <Input placeholder="HR or recruiter name" />
+                <Input placeholder="HR or recruiter name" value={form.hrName} onChange={(e) => handleChange('hrName', e.target.value as CompanyRegistrationData['hrName'])} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">HR Email</label>
-                <Input placeholder="HR email" />
+                <Input placeholder="HR email" value={form.hrEmail} onChange={(e) => handleChange('hrEmail', e.target.value as CompanyRegistrationData['hrEmail'])} />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">HR Phone Number</label>
-                <Input placeholder="HR phone number" />
+                <Input placeholder="HR phone number" value={form.hrPhone} onChange={(e) => handleChange('hrPhone', e.target.value as CompanyRegistrationData['hrPhone'])} />
               </div>
             </div>
           </div>
@@ -205,7 +249,7 @@ export default function CompanyRegistrationForm() {
             <div className="grid gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Company Registration Number (optional)</label>
-                <Input placeholder="Enter registration number" />
+                <Input placeholder="Enter registration number" value={form.registrationNumber} onChange={(e) => handleChange('registrationNumber', e.target.value as CompanyRegistrationData['registrationNumber'])} />
               </div>
               <label className="block text-sm font-medium">Upload Company Logo</label>
               <input type="file" className="border rounded px-3 py-2" />
@@ -218,11 +262,18 @@ export default function CompanyRegistrationForm() {
           <Button variant="outline" onClick={prevStep} disabled={step === 0}>Previous</Button>
           <div className="flex gap-2">
             <Button variant="ghost">Reset Form</Button>
-            <Button onClick={handleNext}>
-              {step === steps.length - 1 ? 'Submit' : 'Next'}
+            <Button onClick={handleSubmit} disabled={loading}>
+              {loading ? 'Submitting...' : (step === steps.length - 1 ? 'Submit' : 'Next')}
             </Button>
           </div>
         </div>
+        
+        {/* Error Display */}
+        {error && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   )
