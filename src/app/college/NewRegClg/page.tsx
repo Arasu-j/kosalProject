@@ -66,7 +66,7 @@ export default function CollegeRegistrationForm() {
         console.log('Submitting college form data:', form)
         const result = await registerCollege({ data: form })
         console.log('College registration result:', result)
-        router.push('/college/Login')
+        router.push('/college/ClgDashBoard/overview')
       } catch (err: any) {
         console.error('College registration error:', err)
         setError(err.message || 'Registration failed')
