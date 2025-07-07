@@ -38,37 +38,41 @@ export default function CompanyLoginPage () {
 			} else {
 				setError('Invalid credentials')
 			}
-		} catch (err: any) {
-			setError(err.message || 'Login failed')
+		} catch (err: unknown) {
+			setError(err instanceof Error ? err.message : 'Login failed')
 		}
 		setLoading(false)
 	}
 
 	return (
-		<div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f8ff] via-[#e6e9fa] to-[#f3e8ff] relative'>
-			<div className='absolute left-8 top-8 opacity-10'>
-				<Building2 size={48} />
+		<div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f8ff] via-[#e6e9fa] to-[#f3e8ff] relative px-4'>
+			<div className='absolute left-4 sm:left-8 top-4 sm:top-8 opacity-10'>
+				<Building2 size={32} className='sm:hidden' />
+				<Building2 size={48} className='hidden sm:block' />
 			</div>
-			<Card className='w-full max-w-md rounded-2xl shadow-xl border-0 bg-white/90'>
-				<div className='flex flex-col items-center -mt-12 mb-2'>
-					<div className='bg-gradient-to-br from-[#6a5af9] to-[#b16cea] rounded-xl p-4 shadow-lg mb-2'>
-						<Building2 size={40} className='text-white' />
+			<Card className='w-full max-w-sm sm:max-w-md rounded-2xl shadow-xl border-0 bg-white/90'>
+				<div className='flex flex-col items-center -mt-8 sm:-mt-12 mb-2'>
+					<div className='bg-gradient-to-br from-[#6a5af9] to-[#b16cea] rounded-xl p-3 sm:p-4 shadow-lg mb-2'>
+						<Building2 size={32} className='text-white sm:hidden' />
+						<Building2 size={40} className='text-white hidden sm:block' />
 					</div>
-					<h1 className='text-2xl font-bold text-gray-800 mt-2'>Welcome Company</h1>
-					<p className='text-gray-500 text-sm mb-2'>Access your recruiter portal</p>
+					<h1 className='text-xl sm:text-2xl font-bold text-gray-800 mt-2 text-center'>Welcome Company</h1>
+					<p className='text-gray-500 text-xs sm:text-sm mb-2 text-center'>Access your recruiter portal</p>
 				</div>
-				<CardContent className='pt-0'>
+				<CardContent className='pt-0 px-4 sm:px-6'>
 					<div className='flex flex-col items-center mb-4'>
-						<div className='flex items-center gap-2 text-[#3b3b6d] font-semibold text-base mb-1'>
-							<Building2 size={18} />
+						<div className='flex items-center gap-2 text-[#3b3b6d] font-semibold text-sm sm:text-base mb-1'>
+							<Building2 size={16} className='sm:hidden' />
+							<Building2 size={18} className='hidden sm:block' />
 							<span>Company Portal Login</span>
 						</div>
-						<p className='text-xs text-gray-400'>Enter your credentials to continue</p>
+						<p className='text-xs text-gray-400 text-center'>Enter your credentials to continue</p>
 					</div>
-					<form onSubmit={handleLogin} className='space-y-4'>
+					<form onSubmit={handleLogin} className='space-y-3 sm:space-y-4'>
 						<div>
 							<Label htmlFor='companyName' className='flex items-center gap-1 text-sm font-medium text-gray-700'>
-								<User size={16} className='text-[#6a5af9]' />
+								<User size={14} className='text-[#6a5af9] sm:hidden' />
+								<User size={16} className='text-[#6a5af9] hidden sm:block' />
 								Company Name
 							</Label>
 							<Input
@@ -78,12 +82,13 @@ export default function CompanyLoginPage () {
 								required
 								value={name}
 								onChange={e => setName(e.target.value)}
-								className='mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-[#6a5af9] focus:ring-2 focus:ring-[#b16cea]/30 bg-white text-gray-800 placeholder-gray-400 shadow-sm transition-all'
+								className='mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-[#6a5af9] focus:ring-2 focus:ring-[#b16cea]/30 bg-white text-gray-800 placeholder-gray-400 shadow-sm transition-all text-sm'
 							/>
 						</div>
 						<div>
 							<Label htmlFor='companyId' className='flex items-center gap-1 text-sm font-medium text-gray-700'>
-								<KeyRound size={16} className='text-[#6a5af9]' />
+								<KeyRound size={14} className='text-[#6a5af9] sm:hidden' />
+								<KeyRound size={16} className='text-[#6a5af9] hidden sm:block' />
 								Company Code / ID
 							</Label>
 							<Input
@@ -93,7 +98,7 @@ export default function CompanyLoginPage () {
 								required
 								value={companyId}
 								onChange={e => setCompanyId(e.target.value)}
-								className='mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-[#6a5af9] focus:ring-2 focus:ring-[#b16cea]/30 bg-white text-gray-800 placeholder-gray-400 shadow-sm transition-all'
+								className='mt-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-[#6a5af9] focus:ring-2 focus:ring-[#b16cea]/30 bg-white text-gray-800 placeholder-gray-400 shadow-sm transition-all text-sm'
 							/>
 						</div>
 						<div className='flex items-center justify-between mt-2 mb-1'>
@@ -102,7 +107,7 @@ export default function CompanyLoginPage () {
 									type='checkbox'
 									checked={remember}
 									onChange={e => setRemember(e.target.checked)}
-									className='accent-[#6a5af9] rounded-sm h-4 w-4 border-gray-300'
+									className='accent-[#6a5af9] rounded-sm h-3 w-3 sm:h-4 sm:w-4 border-gray-300'
 								/>
 								Remember me
 							</label>
@@ -123,9 +128,9 @@ export default function CompanyLoginPage () {
 							<Button
 								type='submit'
 								disabled={loading}
-								className='w-full bg-gradient-to-r from-[#6a5af9] to-[#b16cea] text-white font-semibold rounded-lg py-2 shadow-md hover:from-[#5a4ae6] hover:to-[#a05adf] transition-all flex items-center justify-center gap-2 text-base'
+								className='w-full bg-gradient-to-r from-[#6a5af9] to-[#b16cea] text-white font-semibold rounded-lg py-2 shadow-md hover:from-[#5a4ae6] hover:to-[#a05adf] transition-all flex items-center justify-center gap-2 text-sm sm:text-base'
 							>
-								Sign In <ArrowRight size={18} />
+								Sign In <ArrowRight size={16} className='sm:hidden' /><ArrowRight size={18} className='hidden sm:block' />
 							</Button>
 							<div className='flex items-center justify-center gap-2 text-xs text-gray-400 mt-1'>
 								<span>New to our platform?</span>
@@ -133,10 +138,10 @@ export default function CompanyLoginPage () {
 							<Button
 								type='button'
 								variant='outline'
-								className='w-full border border-[#e0e0e0] text-[#3b3b6d] font-semibold rounded-lg py-2 bg-white hover:bg-[#f4f8ff] flex items-center justify-center gap-2 text-base shadow-sm'
+								className='w-full border border-[#e0e0e0] text-[#3b3b6d] font-semibold rounded-lg py-2 bg-white hover:bg-[#f4f8ff] flex items-center justify-center gap-2 text-sm sm:text-base shadow-sm'
 								onClick={() => router.push('/company/NewRegCom')}
 							>
-								<PlusSquare size={18} /> Register New Company
+								<PlusSquare size={16} className='sm:hidden' /><PlusSquare size={18} className='hidden sm:block' /> Register New Company
 							</Button>
 						</CardFooter>
 					</form>

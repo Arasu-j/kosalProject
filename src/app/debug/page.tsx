@@ -19,7 +19,7 @@ export default function DebugPage() {
 					<p className="mb-4">Found {companies.length} company(ies):</p>
 					<div className="space-y-4">
 						{companies.map((company) => (
-							<div key={company.id} className="border p-4 rounded">
+							<div key={company._id} className="border p-4 rounded">
 								<h3 className="font-semibold">Company: {company.name}</h3>
 								<p>ID: {company.companyId}</p>
 								<p>Email: {company.email}</p>

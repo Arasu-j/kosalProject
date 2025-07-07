@@ -10,21 +10,22 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { useMutation } from 'convex/react'
 import { api } from '../../../../../convex/_generated/api'
 import { useSession } from '../../../SessionProvider'
+import { Doc } from '../../../../../convex/_generated/dataModel'
 
 export default function ProfileManagementPage() {
-  const { college } = useSession()
+  const { college } = useSession() as { college: Doc<'colleges'> | null }
   const updateCollegeProfile = useMutation(api.colleges.updateCollegeProfile)
   const [formData, setFormData] = useState({
     name: college?.name || '',
     collegeId: college?.collegeId || '',
-    collegeType: college?.collegeType || '',
+    collegeType: (college?.collegeType as 'Government' | 'Private' | 'Autonomous') || undefined,
     affiliatedUniversity: college?.affiliatedUniversity || '',
     accreditation: college?.accreditation || '',
     description: college?.description || '',
     address: college?.address || '',
     city: college?.city || '',
-    state: college?.state || '',
-    country: college?.country || '',
+    state: (college?.state as 'Tamil Nadu' | 'Karnataka' | 'Maharashtra') || undefined,
+    country: (college?.country as 'India' | 'USA' | 'UK') || undefined,
     zipCode: college?.zipCode || '',
     email: college?.email || '',
     phone: college?.phone || '',
@@ -43,14 +44,14 @@ export default function ProfileManagementPage() {
     setFormData({
       name: college?.name || '',
       collegeId: college?.collegeId || '',
-      collegeType: college?.collegeType || '',
+      collegeType: (college?.collegeType as 'Government' | 'Private' | 'Autonomous') || undefined,
       affiliatedUniversity: college?.affiliatedUniversity || '',
       accreditation: college?.accreditation || '',
       description: college?.description || '',
       address: college?.address || '',
       city: college?.city || '',
-      state: college?.state || '',
-      country: college?.country || '',
+      state: (college?.state as 'Tamil Nadu' | 'Karnataka' | 'Maharashtra') || undefined,
+      country: (college?.country as 'India' | 'USA' | 'UK') || undefined,
       zipCode: college?.zipCode || '',
       email: college?.email || '',
       phone: college?.phone || '',
@@ -70,16 +71,16 @@ export default function ProfileManagementPage() {
     e.preventDefault()
     setError('')
     setSuccess('')
-    if (!college?.id) {
+    if (!college?._id) {
       setError('College not found in session.')
       return
     }
     setLoading(true)
     try {
-      await updateCollegeProfile({ collegeId: college.id, data: formData })
+      await updateCollegeProfile({ collegeId: college._id, data: formData })
       setSuccess('Profile updated successfully!')
-    } catch (err: any) {
-      setError(err.message || 'Failed to update profile')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update profile')
     }
     setLoading(false)
   }
@@ -87,6 +88,8 @@ export default function ProfileManagementPage() {
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold text-blue-800">Profile Management</h1>
+      {error && <div className="text-red-500 bg-red-50 p-3 rounded">{error}</div>}
+      {success && <div className="text-green-500 bg-green-50 p-3 rounded">{success}</div>}
       <Card>
         <CardHeader>
           <CardTitle>Edit College Profile</CardTitle>
@@ -167,7 +170,9 @@ export default function ProfileManagementPage() {
             </div>
           </CardContent>
           <CardFooter className="justify-end">
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Saving...' : 'Save Changes'}
+            </Button>
           </CardFooter>
         </form>
       </Card>

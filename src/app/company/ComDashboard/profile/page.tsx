@@ -10,19 +10,31 @@ import { Card, CardContent, CardHeader, CardFooter, CardTitle } from '@/componen
 import { useMutation } from 'convex/react'
 import { api } from '../../../../../convex/_generated/api'
 import { useSession } from '../../../SessionProvider'
+import { Doc } from '../../../../../convex/_generated/dataModel'
 
 export default function CompanyProfilePage() {
-  const { company } = useSession()
+  const { company } = useSession() as { company: Doc<'companies'> | null }
   const updateCompanyProfile = useMutation(api.companies.updateCompanyProfile)
   const [formData, setFormData] = useState({
-    name: company?.name || '',
-    industrySector: company?.industrySector || '',
-    description: company?.description || '',
-    address: company?.address || '',
-    website: company?.website || '',
-    email: company?.email || '',
-    phone: company?.phone || '',
-    logoUrl: company?.logoUrl || '',
+    name: company?.name || undefined,
+    companyType: (company?.companyType as 'Product' | 'Service' | 'Consultancy' | 'Startup') || undefined,
+    industrySector: (company?.industrySector as 'IT' | 'Finance' | 'Healthcare' | 'EdTech') || undefined,
+    companySize: (company?.companySize as '1-10' | '11-50' | '51-200' | '201-500' | '500+') || undefined,
+    description: company?.description || undefined,
+    address: company?.address || undefined,
+    city: company?.city || undefined,
+    state: (company?.state as 'Tamil Nadu' | 'Karnataka') || undefined,
+    country: (company?.country as 'India' | 'USA') || undefined,
+    zipCode: company?.zipCode || undefined,
+    email: company?.email || undefined,
+    phone: company?.phone || undefined,
+    website: company?.website || undefined,
+    socialMedia: company?.socialMedia || undefined,
+    hrName: company?.hrName || undefined,
+    hrEmail: company?.hrEmail || undefined,
+    hrPhone: company?.hrPhone || undefined,
+    registrationNumber: company?.registrationNumber || undefined,
+    logoUrl: company?.logoUrl || undefined,
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -31,14 +43,25 @@ export default function CompanyProfilePage() {
   // Update form when company changes
   useEffect(() => {
     setFormData({
-      name: company?.name || '',
-      industrySector: company?.industrySector || '',
-      description: company?.description || '',
-      address: company?.address || '',
-      website: company?.website || '',
-      email: company?.email || '',
-      phone: company?.phone || '',
-      logoUrl: company?.logoUrl || '',
+      name: company?.name || undefined,
+      companyType: (company?.companyType as 'Product' | 'Service' | 'Consultancy' | 'Startup') || undefined,
+      industrySector: (company?.industrySector as 'IT' | 'Finance' | 'Healthcare' | 'EdTech') || undefined,
+      companySize: (company?.companySize as '1-10' | '11-50' | '51-200' | '201-500' | '500+') || undefined,
+      description: company?.description || undefined,
+      address: company?.address || undefined,
+      city: company?.city || undefined,
+      state: (company?.state as 'Tamil Nadu' | 'Karnataka') || undefined,
+      country: (company?.country as 'India' | 'USA') || undefined,
+      zipCode: company?.zipCode || undefined,
+      email: company?.email || undefined,
+      phone: company?.phone || undefined,
+      website: company?.website || undefined,
+      socialMedia: company?.socialMedia || undefined,
+      hrName: company?.hrName || undefined,
+      hrEmail: company?.hrEmail || undefined,
+      hrPhone: company?.hrPhone || undefined,
+      registrationNumber: company?.registrationNumber || undefined,
+      logoUrl: company?.logoUrl || undefined,
     })
   }, [company])
 
@@ -50,16 +73,16 @@ export default function CompanyProfilePage() {
     e.preventDefault()
     setError('')
     setSuccess('')
-    if (!company?.id) {
+    if (!company?._id) {
       setError('Company not found in session.')
       return
     }
     setLoading(true)
     try {
-      await updateCompanyProfile({ companyId: company.id, data: formData })
+      await updateCompanyProfile({ companyId: company._id, data: formData })
       setSuccess('Profile updated successfully!')
-    } catch (err: any) {
-      setError(err.message || 'Failed to update profile')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update profile')
     }
     setLoading(false)
   }
@@ -67,6 +90,8 @@ export default function CompanyProfilePage() {
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold text-gray-800">Profile Management</h1>
+      {error && <div className="text-red-500 bg-red-50 p-3 rounded">{error}</div>}
+      {success && <div className="text-green-500 bg-green-50 p-3 rounded">{success}</div>}
       <Card>
         <CardHeader>
           <CardTitle>Edit Company Profile</CardTitle>
@@ -107,7 +132,9 @@ export default function CompanyProfilePage() {
             </div>
           </CardContent>
           <CardFooter className="justify-end">
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Saving...' : 'Save Changes'}
+            </Button>
           </CardFooter>
         </form>
       </Card>

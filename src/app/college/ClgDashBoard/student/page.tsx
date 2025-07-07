@@ -4,16 +4,17 @@
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { useSession } from '../../../SessionProvider'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '../../../../../convex/_generated/api'
 import { User, Eye } from 'lucide-react'
+import { Doc } from '../../../../../convex/_generated/dataModel'
 
 export default function StudentManagementPage() {
-	const { college } = useSession()
-	const collegeId = college?.id
+	const { college } = useSession() as { college: Doc<'colleges'> | null }
+	const collegeId = college?._id
 	const students = useQuery(
 		api.students.getStudentsByCollege,
 		collegeId ? { collegeId } : 'skip'
@@ -59,8 +60,8 @@ export default function StudentManagementPage() {
 				skills: '',
 				resume: '',
 			})
-		} catch (err: any) {
-			setError(err.message || 'Failed to add student')
+		} catch (err: unknown) {
+			setError(err instanceof Error ? err.message : 'Failed to add student')
 		}
 		setLoading(false)
 	}

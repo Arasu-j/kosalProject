@@ -65,9 +65,9 @@ export default function CompanyRegistrationForm() {
         const result = await registerCompany({ data: form })
         console.log('Registration result:', result)
         router.push('/company/ComDashboard/overview')
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Registration error:', err)
-        setError(err.message || 'Registration failed')
+        setError(err instanceof Error ? err.message : 'Registration failed')
       }
       setLoading(false)
     } else {

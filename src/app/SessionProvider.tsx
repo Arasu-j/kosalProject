@@ -1,129 +1,87 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-
-interface Company {
-	id: string
-	name: string
-	companyId: string
-	email: string
-}
-
-interface College {
-	id: string
-	name: string
-	collegeId: string
-	email: string
-	totalDepartments?: string
-	collegeType?: string
-	affiliatedUniversity?: string
-	accreditation?: string
-	description?: string
-	address?: string
-	city?: string
-	state?: string
-	country?: string
-	zipCode?: string
-	phone?: string
-	website?: string
-	principalName?: string
-	placementOfficerName?: string
-	placementEmail?: string
-	placementPhone?: string
-	coursesOffered?: string[]
-	logoUrl?: string
-}
+import { createContext, useContext, useState, useEffect } from 'react'
+import { useQuery } from 'convex/react'
+import { api } from '../../convex/_generated/api'
+import { ReactNode } from 'react'
 
 interface SessionContextType {
-	company: Company | null
-	college: College | null
+	// Company session
 	token: string | null
-	collegeToken: string | null
-	setCompany: (company: Company | null) => void
-	setCollege: (college: College | null) => void
 	setToken: (token: string | null) => void
+	company: unknown
+	setCompany: (company: unknown) => void
+	
+	// College session
+	collegeToken: string | null
 	setCollegeToken: (token: string | null) => void
+	college: unknown
+	setCollege: (college: unknown) => void
 }
 
-const SessionContext = createContext<SessionContextType | undefined>(undefined)
+const defaultSessionContext: SessionContextType = {
+	token: null,
+	setToken: () => {},
+	company: null,
+	setCompany: () => {},
+	collegeToken: null,
+	setCollegeToken: () => {},
+	college: null,
+	setCollege: () => {},
+}
 
-export function SessionProvider({ children }: { children: ReactNode }) {
-	const [company, setCompany] = useState<Company | null>(null)
-	const [college, setCollege] = useState<College | null>(null)
+const SessionContext = createContext<SessionContextType>(defaultSessionContext)
+
+export function useSession() {
+	return useContext(SessionContext)
+}
+
+export default function SessionProvider({ children }: { children: ReactNode }) {
 	const [token, setToken] = useState<string | null>(null)
+	const [company, setCompany] = useState<unknown>(null)
 	const [collegeToken, setCollegeToken] = useState<string | null>(null)
+	const [college, setCollege] = useState<unknown>(null)
+
+	// Validate company session
+	const companySessionData = useQuery(
+		api.companies.validateSession,
+		token ? { token } : 'skip'
+	)
+
+	// Validate college session
+	const collegeSessionData = useQuery(
+		api.colleges.validateCollegeSession,
+		collegeToken ? { token: collegeToken } : 'skip'
+	)
 
 	useEffect(() => {
-		// Load session data from localStorage on mount
-		const savedCompany = localStorage.getItem('company')
-		const savedCollege = localStorage.getItem('college')
-		const savedToken = localStorage.getItem('token')
-		const savedCollegeToken = localStorage.getItem('collegeToken')
-
-		if (savedCompany) {
-			try {
-				setCompany(JSON.parse(savedCompany))
-			} catch (error) {
-				console.error('Failed to parse saved company:', error)
-			}
+		if (companySessionData && companySessionData.company) {
+			setCompany(companySessionData.company)
+		} else {
+			setCompany(null)
 		}
-		if (savedCollege) {
-			try {
-				setCollege(JSON.parse(savedCollege))
-			} catch (error) {
-				console.error('Failed to parse saved college:', error)
-			}
-		}
-		if (savedToken) setToken(savedToken)
-		if (savedCollegeToken) setCollegeToken(savedCollegeToken)
-	}, [])
+	}, [companySessionData])
 
 	useEffect(() => {
-		// Save session data to localStorage when it changes
-		if (company) {
-			localStorage.setItem('company', JSON.stringify(company))
+		if (collegeSessionData && collegeSessionData.college) {
+			setCollege(collegeSessionData.college)
 		} else {
-			localStorage.removeItem('company')
+			setCollege(null)
 		}
-		if (college) {
-			localStorage.setItem('college', JSON.stringify(college))
-		} else {
-			localStorage.removeItem('college')
-		}
-		if (token) {
-			localStorage.setItem('token', token)
-		} else {
-			localStorage.removeItem('token')
-		}
-		if (collegeToken) {
-			localStorage.setItem('collegeToken', collegeToken)
-		} else {
-			localStorage.removeItem('collegeToken')
-		}
-	}, [company, college, token, collegeToken])
+	}, [collegeSessionData])
 
 	return (
-		<SessionContext.Provider
-			value={{
-				company,
-				college,
-				token,
-				collegeToken,
-				setCompany,
-				setCollege,
-				setToken,
-				setCollegeToken,
-			}}
-		>
+		<SessionContext.Provider value={{ 
+			token, 
+			setToken, 
+			company, 
+			setCompany,
+			collegeToken,
+			setCollegeToken,
+			college,
+			setCollege
+		}}>
 			{children}
 		</SessionContext.Provider>
 	)
-}
-
-export function useSession() {
-	const context = useContext(SessionContext)
-	if (context === undefined) {
-		throw new Error('useSession must be used within a SessionProvider')
-	}
-	return context
 } 

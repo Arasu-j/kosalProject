@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { GraduationCap, Briefcase, Users } from 'lucide-react'
+import Image from 'next/image'
 
 export default function HomePage() {
   const router = useRouter()
@@ -12,7 +13,7 @@ export default function HomePage() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 bg-white shadow">
         <div className="flex items-center gap-2">
-          <img src="/image/icon.ico" alt="Logo" className="h-10 w-10" />
+          <Image src="/image/icon.ico" alt="Logo" width={40} height={40} className="h-10 w-10" />
           <h1 className="text-2xl font-bold text-blue-700">CCC Portal</h1>
         </div>
         <div className="space-x-4">
@@ -27,7 +28,7 @@ export default function HomePage() {
           Welcome to the College-Company Collaboration Portal
         </h2>
         <p className="text-gray-700 max-w-3xl mx-auto text-lg">
-          This portal serves as a bridge between academic institutions and the corporate world. Colleges can showcase their students' skills and achievements, while companies can discover and connect with top student talent.
+          This portal serves as a bridge between academic institutions and the corporate world. Colleges can showcase their students&apos; skills and achievements, while companies can discover and connect with top student talent.
         </p>
       </section>
 

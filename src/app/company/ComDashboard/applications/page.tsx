@@ -1,8 +1,7 @@
 // app/company/CmpDashboard/applications/page.tsx
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { useQuery } from 'convex/react'
 import { api } from '../../../../../convex/_generated/api'
 import { User, Building2, Briefcase, FileText, Inbox } from 'lucide-react'

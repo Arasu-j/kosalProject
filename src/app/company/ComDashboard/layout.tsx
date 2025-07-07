@@ -16,78 +16,51 @@ const navItems = [
 
 export default function CompanyDashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
     <div className="flex min-h-screen">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-gray-900 text-white rounded-md"
+      >
+        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
       {/* Sidebar */}
-      <aside className="hidden md:block w-64 bg-gray-900 text-white p-6 space-y-4 fixed inset-y-0 left-0 z-30 h-full">
-        <h2 className="text-2xl font-bold mb-6">Company Dashboard</h2>
+      <aside className={`w-64 bg-gray-900 text-white p-6 space-y-4 fixed inset-y-0 left-0 z-30 h-full transform transition-transform duration-300 ease-in-out ${
+        isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}>
+        <h2 className="text-xl lg:text-2xl font-bold mb-6 mt-12 lg:mt-0">Company Dashboard</h2>
         {navItems.map((item) => {
           const Icon = item.icon
           return (
             <Link
               key={item.name}
               href={item.path}
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center gap-3 px-4 py-2 rounded hover:bg-gray-700 transition-colors ${pathname === item.path ? 'bg-gray-700' : ''}`}
             >
               <Icon size={20} className="text-gray-300" />
-              <span>{item.name}</span>
+              <span className="text-sm lg:text-base">{item.name}</span>
             </Link>
           )
         })}
       </aside>
 
-      {/* Mobile Topbar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-gray-900 text-white flex items-center justify-between px-4 py-3 shadow">
-        <span className="text-lg font-bold">Company Dashboard</span>
-        <button onClick={() => setDrawerOpen(true)} aria-label="Open menu">
-          <Menu size={28} />
-        </button>
-      </div>
-      {/* Mobile Drawer */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 flex">
-          {/* Overlay */}
-          <div className="fixed inset-0 bg-black/40" onClick={() => setDrawerOpen(false)} />
-          {/* Drawer */}
-          <aside className="relative w-64 bg-gray-900 text-white p-6 space-y-4 h-full shadow-xl animate-slide-in-left">
-            <button className="absolute top-4 right-4" onClick={() => setDrawerOpen(false)} aria-label="Close menu">
-              <X size={28} />
-            </button>
-            <h2 className="text-2xl font-bold mb-6 mt-2">Company Dashboard</h2>
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  onClick={() => setDrawerOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-2 rounded hover:bg-gray-700 transition-colors ${pathname === item.path ? 'bg-gray-700' : ''}`}
-                >
-                  <Icon size={20} className="text-gray-300" />
-                  <span>{item.name}</span>
-                </Link>
-              )
-            })}
-          </aside>
-        </div>
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
       )}
 
       {/* Main Content */}
-      <main className="flex-1 p-4 md:p-8 bg-[#f7f8fa] min-h-screen overflow-y-auto md:ml-64 pt-16 md:pt-8">
+      <main className="flex-1 p-4 lg:p-8 bg-[#f7f8fa] lg:ml-64 min-h-screen overflow-y-auto">
         {children}
       </main>
     </div>
   )
 }
-
-/* Add this to your global CSS or Tailwind config for the slide-in animation:
-@keyframes slide-in-left {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
-}
-.animate-slide-in-left {
-  animation: slide-in-left 0.2s ease-out;
-}
-*/

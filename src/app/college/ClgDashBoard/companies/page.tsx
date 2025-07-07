@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { useQuery } from 'convex/react'
 import { api } from '../../../../../convex/_generated/api'
-import { GraduationCap, MapPin, Landmark, Building2 } from 'lucide-react'
+import { Building2, MapPin, Briefcase, Mail, Users } from 'lucide-react'
 
 export default function CompanyConnectPage() {
   const [invited, setInvited] = useState<{ [id: string]: boolean }>({})
@@ -26,7 +26,7 @@ export default function CompanyConnectPage() {
       <div className='max-w-6xl mx-auto'>
         <Card className='rounded-2xl shadow border-0'>
           <CardHeader className='flex flex-row items-center gap-2 bg-gradient-to-r from-white to-[#f7f8fa] rounded-t-2xl border-b px-6 py-4'>
-            <GraduationCap className='text-blue-500 mr-2' size={22} />
+            <Users className='text-blue-500 mr-2' size={22} />
             <h2 className='text-lg font-semibold text-blue-700'>Available Companies</h2>
           </CardHeader>
           <CardContent className='bg-white rounded-b-2xl p-8'>
@@ -47,10 +47,11 @@ export default function CompanyConnectPage() {
                       <span>{company.city}, {company.state}, {company.country}</span>
                     </div>
                     <div className='flex items-center gap-2 text-gray-600 text-sm mb-1'>
-                      <Landmark size={16} />
+                      <Briefcase size={16} />
                       <span>{company.industrySector}</span>
                     </div>
                     <div className='flex items-center gap-2 text-gray-600 text-sm mb-3'>
+                      <Mail size={16} />
                       <span>{company.email}</span>
                     </div>
                     <Button
