@@ -9,7 +9,6 @@ import {
 	FileText,
 	Briefcase,
 	Users,
-	Building2,
 	Clock,
 	Trophy,
 	ArrowUpRight,
@@ -75,8 +74,8 @@ const statMeta = [
 export default function CollegeDashboardOverviewPage () {
 	const { college } = useSession()
 	const companies = useQuery(api.companies.listCompanies)
-	const students = useQuery(api.students.getStudentsByCollege, college?.id ? { collegeId: college.id } : 'skip')
-	const departments = college?.totalDepartments ? Number(college.totalDepartments) : 0
+	const students = useQuery(api.students.getStudentsByCollege, college?.id ? { collegeId: college.id as any } : 'skip')
+	const departments = college?.totalDepartments ? Number(college.totalDepartments) : 5
 	const activeCompanies = companies ? companies.filter(c => c.isActive).length : 0
 	const studentsRegistered = students ? students.length : 0
 

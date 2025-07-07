@@ -1,7 +1,7 @@
 // app/college/ClgDashBoard/applications/page.tsx
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { useQuery } from 'convex/react'
 import { api } from '../../../../../convex/_generated/api'
 import { Building2, Briefcase, User, Inbox } from 'lucide-react'

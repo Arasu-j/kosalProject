@@ -6,18 +6,18 @@ import { useQuery } from 'convex/react'
 import { api } from '../../../../../convex/_generated/api'
 import { useSession } from '../../../SessionProvider'
 import {
-	Briefcase,
 	FileText,
-	GraduationCap,
+	Briefcase,
+	Users,
 	Clock,
-	Handshake,
+	Trophy,
 	ArrowUpRight,
 } from 'lucide-react'
 
 const statMeta = [
 	{
 		title: 'Jobs Posted',
-		icon: Briefcase,
+		icon: FileText,
 		iconBg: 'bg-blue-100',
 		iconColor: 'text-blue-500',
 		circle: 'bg-blue-200/30',
@@ -25,22 +25,22 @@ const statMeta = [
 		subDot: 'bg-blue-500',
 	},
 	{
-		title: 'Applications Received',
-		icon: FileText,
-		iconBg: 'bg-purple-100',
-		iconColor: 'text-purple-500',
-		circle: 'bg-purple-200/30',
-		sub: '+18 today',
-		subDot: 'bg-purple-500',
-	},
-	{
-		title: 'Colleges Connected',
-		icon: GraduationCap,
+		title: 'Active Applications',
+		icon: Briefcase,
 		iconBg: 'bg-green-100',
 		iconColor: 'text-green-500',
 		circle: 'bg-green-200/30',
-		sub: '+4 this week',
+		sub: '+3 this week',
 		subDot: 'bg-green-500',
+	},
+	{
+		title: 'Students Applied',
+		icon: Users,
+		iconBg: 'bg-purple-100',
+		iconColor: 'text-purple-500',
+		circle: 'bg-purple-200/30',
+		sub: '+45 this month',
+		subDot: 'bg-purple-500',
 	},
 	{
 		title: 'Interviews Scheduled',
@@ -48,28 +48,37 @@ const statMeta = [
 		iconBg: 'bg-orange-100',
 		iconColor: 'text-orange-500',
 		circle: 'bg-orange-200/30',
-		sub: '5 today',
+		sub: '+12 today',
 		subDot: 'bg-orange-500',
 	},
 	{
-		title: 'Offers Made',
-		icon: Handshake,
+		title: 'Ongoing Interviews',
+		icon: Clock,
+		iconBg: 'bg-yellow-100',
+		iconColor: 'text-yellow-500',
+		circle: 'bg-yellow-200/30',
+		sub: '3 scheduled today',
+		subDot: 'bg-orange-500',
+	},
+	{
+		title: 'Successful Hires',
+		icon: Trophy,
 		iconBg: 'bg-rose-100',
 		iconColor: 'text-rose-500',
 		circle: 'bg-rose-200/30',
-		sub: '+2 this week',
+		sub: '+8 this month',
 		subDot: 'bg-rose-500',
 	},
 ]
 
 export default function CompanyDashboardOverviewPage() {
 	const { company } = useSession()
-	const jobs = useQuery(api.companies.listJobsByCompany, company?.id ? { companyId: company.id } : 'skip')
-	const jobsPosted = jobs ? jobs.length : 0
+	const allJobs = useQuery(api.companies.listJobs)
+	const jobs = allJobs ? allJobs.filter(job => job.companyId === company?.id) : []
 
-	// Replace these with real data as before, but keep zero if data is zero
 	const stats = [
-		{ value: jobsPosted },
+		{ value: jobs.length },
+		{ value: 0 },
 		{ value: 0 },
 		{ value: 0 },
 		{ value: 0 },
@@ -80,10 +89,10 @@ export default function CompanyDashboardOverviewPage() {
 		<div className='relative min-h-[80vh] bg-[#f7f8fa] px-2 sm:px-6 py-8'>
 			<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4'>
 				<div>
-					<h1 className='text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#6a5af9] to-[#b16cea] mb-1'>
+					<h1 className='text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#3b82f6] to-[#6366f1] mb-1'>
 						Dashboard Overview
 					</h1>
-					<p className='text-gray-500 text-base'>Track your company&apos;s hiring activity and performance</p>
+					<p className='text-gray-500 text-base'>Monitor your company&apos;s recruitment activities and performance metrics</p>
 				</div>
 				<div className='flex justify-end'>
 					<span className='inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-green-700 font-semibold text-sm shadow-sm'>
